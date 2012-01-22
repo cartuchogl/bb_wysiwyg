@@ -27,6 +27,26 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* Example Extra BBCodes
+
+[center]{TEXT}[/center]
+
+<span style="text-align: center; display: block;">{TEXT}</span>
+
+[left]{TEXT}[/left]
+
+<span style="text-align: left; display: block;">{TEXT}</span>
+
+[right]{TEXT}[/right]
+
+<span style="text-align: right; display: block;">{TEXT}</span>
+
+// From http://www.batiburrillo.net/foros/topic7510.html
+[youtube]{TEXT}[/youtube]
+
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{TEXT}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{TEXT}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>
+
+*/
 var wswgEditor = new function () {
 
 	this.getEditorDoc = function () { return myeditor; }
@@ -48,7 +68,12 @@ var wswgEditor = new function () {
 		content = content.replace(re, str);
 	}
 
-	this.initEditor = function (textarea_id, wysiwyg) {
+	this.initEditor = function (textarea_id, wysiwyg, css_uri) {
+	  if (css_uri) {
+	    this.css_uri = css_uri;
+	  } else {
+	    this.css_uri = "editor.css";
+	  }
 		if (wysiwyg != undefined)
 			enableWysiwyg = wysiwyg;
 		else
@@ -91,7 +116,7 @@ var wswgEditor = new function () {
 		bbcode2html();
 		myeditor.designMode = "on";
 		myeditor.open();
-		myeditor.write('<html><head><link href="editor.css" rel="Stylesheet" type="text/css" /></head>');
+		myeditor.write('<html><head><link href="'+this.css_uri+'" rel="Stylesheet" type="text/css" /></head>');
 		myeditor.write('<body style="margin:0px 0px 0px 0px" class="editorWYSIWYG">');
 		myeditor.write(content);
 		myeditor.write('</body></html>');
@@ -126,6 +151,16 @@ var wswgEditor = new function () {
 	}
 
 	function html2bbcode() {
+		rep(/<(font)\s[^<>]*?size=\"?1?\"?>\s*([^<]*?)<\/\1>/gi, "[size=50]$2[/size]");
+		rep(/<(font)\s[^<>]*?size=\"?2?\"?>\s*([^<]*?)<\/\1>/gi, "[size=85]$2[/size]");
+		rep(/<(font)\s[^<>]*?size=\"?3?\"?>\s*([^<]*?)<\/\1>/gi, "$2");
+		rep(/<(font)\s[^<>]*?size=\"?5?\"?>\s*([^<]*?)<\/\1>/gi, "[size=150]$2[/size]");
+		rep(/<(font)\s[^<>]*?size=\"?7?\"?>\s*([^<]*?)<\/\1>/gi, "[size=200]$2[/size]");
+		
+		rep(/<(span|div)\s[^>]*?style=\"?text-align:\s*?center;?\"?>(.*?)<\/\1>/gi, "[center]$2[/center]");
+		rep(/<(span|div)\s[^>]*?style=\"?text-align:\s*?left;?\"?>(.*?)<\/\1>/gi, "[left]$2[/left]");
+		rep(/<(span|div)\s[^>]*?style=\"?text-align:\s*?right;?\"?>(.*?)<\/\1>/gi, "[right]$2[/right]");
+		
 		rep(/<img\s[^<>]*?src=\"?([^<>]*?)\"?(\s[^<>]*)?\/?>/gi, "[img]$1[/img]");
 		rep(/<\/(strong|b)>/gi, "[/b]");
 		rep(/<(strong|b)(\s[^<>]*)?>/gi, "[b]");
@@ -146,8 +181,8 @@ var wswgEditor = new function () {
 		rep(/<li>/gi, "[li]");
 		rep(/<\/li>/gi, "[/li]");
 		rep(/<\/div>\s*<div([^<>]*)>/gi, "</span>\n<span$1>"); //chrome-safari fix to prevent double linefeeds
-		rep(/<div([^<>]*)>/gi, "\n<span$1>");
-		rep(/<\/div>/gi, "</span>\n");
+		rep(/<div([^<>]*)>/gi, "<span$1>");
+		rep(/<\/div>/gi, "</span>");
 		
 		rep(/<table([^<>]*)>/gi, "[table]");
 		rep(/<\/table>/gi, "[/table]");
@@ -236,6 +271,21 @@ var wswgEditor = new function () {
 		rep(/\[\/tr\]/gi, "</tr>");
 		rep(/\[td\]/gi, "<td>");
 		rep(/\[\/td\]/gi, "</td>");
+		
+		rep(/\[center\]/gi, "<div style=\"text-align: center\">");
+		rep(/\[\/center\]/gi, "</div>");
+
+		rep(/\[left\]/gi, "<div style=\"text-align: left\">");
+		rep(/\[\/left\]/gi, "</div>");
+
+		rep(/\[right\]/gi, "<div style=\"text-align: right\">");
+		rep(/\[\/right\]/gi, "</div>");
+		
+		rep(/\[size=50\]/gi, "<font size=\"1\">");
+		rep(/\[size=85\]/gi, "<font size=\"2\">");
+		rep(/\[size=150\]/gi, "<font size=\"5\">");
+		rep(/\[size=200\]/gi, "<font size=\"7\">");
+		rep(/\[\/size\]/gi, "</font>");
 
 		if (browser) {
 			rep(/\[b\]/gi, "<strong>");
@@ -256,6 +306,7 @@ var wswgEditor = new function () {
 			sc = content;
 			rep(/\[url=([^\]]+)\]([\s\S]*?)\[\/url\]/gi, "<a href=\"$1\">$2</a>");
 			rep(/\[url\]([\s\S]*?)\[\/url\]/gi, "<a href=\"$1\">$1</a>");
+			
 			if (browser) {
 				rep(/\[color=([^\]]*?)\]([\s\S]*?)\[\/color\]/gi, "<font color=\"$1\">$2</font>");
 				rep(/\[font=([^\]]*?)\]([\s\S]*?)\[\/font\]/gi, "<font face=\"$1\">$2</font>");
@@ -325,8 +376,10 @@ var wswgEditor = new function () {
 		}
 	}
 	this.InsertYoutube = function () {
-		this.InsertText(" http://www.youtube.com/watch?v=XXXXXXXXXXX ");
+		var video_code = prompt("Introduzca el código de video de youtube:", "_hwQaOpscso&rel=1");
+	  this.InsertText(" [youtube]"+video_code+"[/youtube] ");
 	}
+	
 	this.InsertText = function (txt) {
 		if (editorVisible)
 			insertHtml(txt);
@@ -334,10 +387,10 @@ var wswgEditor = new function () {
 			textboxelement.value += txt;
 	}
 
-	this.doClick = function (command) {
+	this.doClick = function (command,extra) {
 		if (editorVisible) {
 			ifm.contentWindow.focus();
-			myeditor.execCommand(command, false, null);
+			myeditor.execCommand(command, false, extra);
 		}
 		else {
 			switch (command) {
@@ -349,6 +402,17 @@ var wswgEditor = new function () {
 					AddTag('[u]', '[/u]'); break;
 				case 'InsertUnorderedList':
 					AddTag('[ul][li]', '[/li][/ul]'); break;
+				case 'justifyCenter':
+					AddTag("[center]", "[/center]"); break;
+				case 'justifyLeft':
+					AddTag("[left]", "[/left]"); break;
+				case 'justifyRight':
+					AddTag("[right]", "[/right]"); break;
+				case 'fontSize':
+					var t = {1:50,2:85,5:150,7:200};
+					if(t[extra]) {
+						AddTag("[size="+t[extra]+"]","[/size]");
+					}; break;
 			}
 		}
 	}
@@ -390,6 +454,14 @@ var wswgEditor = new function () {
 			AddTag('[url=', ']click here[/url]');
 		}
 	}
+	
+	this.doFlash = function () {
+	  var mylink = prompt("Introduzca la URL del swf:", "http://example.com/aswffile.swf");
+	  var resx = prompt("Introduzca el ancho del swf:", "128");
+	  var resy = prompt("Introduzca el alto del swf:", "128");
+	  this.InsertText(" [flash="+resx+","+resy+"]"+mylink+"[/flash] ");
+	}
+	
 	this.doImage = function () {
 		if (editorVisible) {
 			ifm.contentWindow.focus();

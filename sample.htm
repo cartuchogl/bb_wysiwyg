@@ -19,7 +19,19 @@
 			<button title="color" onclick="wswgEditor.showColorGrid2('none')" type="button" style="background-image:url('images/colors.gif');"></button><span id="colorpicker201" class="colorpicker201"></span>
 			<button title="quote" onclick="wswgEditor.doQuote();" type="button" style="background-image:url('images/icon_quote.png');"></button>
 			<button title="youtube" onclick="wswgEditor.InsertYoutube();" type="button" style="background-image:url('images/icon_youtube.gif');"></button>
-			<button title="switch to source" type="button" onclick="wswgEditor.SwitchEditor()" style="background-image:url('images/icon_html.gif');"></button>
+			<button title="flash" onclick="wswgEditor.doFlash();" type="button" style="background-image:url('images/flash.png');"></button>
+			<button title="izquierda" onclick="wswgEditor.doClick('justifyLeft');" type="button" style="background-image:url('images/left.png');"></button>
+			<button title="centrar" onclick="wswgEditor.doClick('justifyCenter');" type="button" style="background-image:url('images/center.png');"></button>
+			<button title="derecha" onclick="wswgEditor.doClick('justifyRight');" type="button" style="background-image:url('images/right.png');"></button>
+			<select name="font_selector" onchange="wswgEditor.doClick('fontSize' , parseInt(this.form.font_selector.options[this.form.font_selector.selectedIndex].value) );this.form.font_selector.selectedIndex = 0;" title="Font Size: [size=x-small]small text[/size]">
+			    <option selected="selected">Font Size</option>
+      		<option value="1">Tiny</option>
+      		<option value="2">Small</option>
+      		<option value="3">Normal</option>
+      		<option value="5">Big</option>
+      		<option value="7">Bigger</option>
+      	</select>
+			<button title="switch to source" type="button" onclick="wswgEditor.SwitchEditor()" style="background-image:url('images/icon_bbcode.gif');"></button>
 		</div>
 		
 		<div class="container">
